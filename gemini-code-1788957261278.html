@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>For Mrs.Pk_chops ❤️ — Our 3D Story Universe</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <!-- Three.js Library for 3D Cosmic Scroll Effects -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Great+Vibes&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        serif: ['Cinzel', 'serif'],
+                        cursive: ['"Great Vibes"', 'cursive'],
+                    },
+                    colors: {
+                        rose: {
+                            50: '#fff1f2',
+                            100: '#ffe4e6',
+                            200: '#fecdd3',
+                            300: '#fda4af',
+                            400: '#fb7185',
+                            500: '#f43f5e',
+                            600: '#e11d48',
+                            700: '#be123c',
+                            800: '#9f1239',
+                            900: '#881337',
+                            950: '#4c0519',
+                        },
+                        gold: {
+                            300: '#fde047',
+                            400: '#facc15',
+                            500: '#eab308',
+                        }
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'pulse-glow': 'pulseGlow 2s ease-in-out infinite',
+                        'shimmer': 'shimmer 2.5s infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px) rotate(0deg)' },
+                            '50%': { transform: 'translateY(-15px) rotate(2deg)' },
+                        },
+                        pulseGlow: {
+                            '0%, 100%': { opacity: '0.6', filter: 'drop-shadow(0 0 15px rgba(225,29,72,0.4))' },
+                            '50%': { opacity: '1', filter: 'drop-shadow(0 0 35px rgba(225,29,72,0.9))' },
+                        },
+                        shimmer: {
+                            '100%': { transform: 'translateX(100%)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #090114;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(to bottom, #e11d48, #9333ea);
+            border-radius: 10px;
+        }
+
+        body {
+            background-color: #05000a;
+            color: #f3f4f6;
+            overflow-x: hidden;
+            touch-action: manipulation;
+            perspective: 1200px;
+        }
+
+        #webgl-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .glass-card {
+            background: rgba(18, 7, 33, 0.45);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            transform-style: preserve-3d;
+            transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.5s ease;
+        }
+        .glass-card:hover {
+            border-color: rgba(244, 63, 94, 0.4);
+        }
+
+        .glass-card-rose {
+            background: rgba(225, 29, 72, 0.08);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(225, 29, 72, 0.3);
+            box-shadow: 0 20px 50px rgba(225, 29, 72, 0.2);
+        }
+
+        #emoji-stream {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 20;
+        }
+
+        .text-glow {
+            text-shadow: 0 0 20px rgba(244, 63, 94, 0.6), 0 0 40px rgba(244, 63, 94, 0.3);
+        }
+
+        .bar {
+            width: 3px;
+            background: #f43f5e;
+            animation: pulseWave 1.2s ease-in-out infinite alternate;
+        }
+        .bar:nth-child(2) { animation-delay: 0.2s; }
+        .bar:nth-child(3) { animation-delay: 0.4s; }
+        .bar:nth-child(4) { animation-delay: 0.1s; }
+        @keyframes pulseWave {
+            0% { height: 4px; }
+            100% { height: 18px; }
+        }
+    </style>
+</head>
+<body class="font-sans antialiased text-slate-100 min-h-screen relative selection:bg-rose-600 selection:text-white">
+
+    <canvas id="webgl-bg"></canvas>
+    <canvas id="emoji-stream"></canvas>
+
+    <audio id="bgAudio" loop preload="auto" autoplay>
+        <source src="mylove.mp3" type="audio/mpeg">
+    </audio>
+
+    <div class="fixed top-4 right-4 z-50 flex items-center gap-3 glass-card px-4 py-2.5 rounded-full border border-rose-500/40 shadow-2xl">
+        <button id="musicToggleBtn" onclick="toggleAudio()" class="flex items-center gap-2.5 hover:text-rose-300 transition text-xs sm:text-sm font-semibold">
+            <div id="audioVisualizer" class="flex items-center gap-0.5 h-5">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+            <span id="musicStatusText" class="tracking-wide">Soundtrack: Active 🎶</span>
+        </button>
+        <div class="h-4 w-[1px] bg-white/20"></div>
+        <button onclick="triggerSecretHeart()" class="hover:scale-125 transition transform duration-300 text-rose-400 hover:text-rose-300 active:scale-95" title="Tap for love boost!">
+            <i data-lucide="heart" class="w-4 h-4 fill-current animate-pulse"></i>
+        </button>
+    </div>
+
+    <nav class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 glass-card px-4 py-2.5 rounded-full border border-white/20 flex items-center gap-1 sm:gap-2 shadow-2xl max-w-[95vw] overflow-x-auto">
+        <a href="#welcome" class="p-2.5 rounded-full hover:bg-rose-500/20 text-rose-300 transition flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider">
+            <i data-lucide="sparkles" class="w-4 h-4 text-rose-400"></i>
+            <span class="hidden sm:inline">Universe</span>
+        </a>
+        <a href="#story" class="p-2.5 rounded-full hover:bg-rose-500/20 text-rose-300 transition flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider">
+            <i data-lucide="book-open" class="w-4 h-4 text-rose-400"></i>
+            <span class="hidden sm:inline">Story</span>
+        </a>
+        <a href="#my-photos" class="p-2.5 rounded-full hover:bg-rose-500/20 text-rose-300 transition flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider">
+            <i data-lucide="camera" class="w-4 h-4 text-rose-400"></i>
+            <span class="hidden sm:inline">Gallery</span>
+        </a>
+        <a href="#vault" class="p-2.5 rounded-full hover:bg-rose-500/20 text-amber-300 transition flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider">
+            <i data-lucide="lock" class="w-4 h-4 text-amber-400"></i>
+            <span class="hidden sm:inline">Vault</span>
+        </a>
+        <a href="#graduation" class="p-2.5 rounded-full hover:bg-rose-500/20 text-rose-300 transition flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider">
+            <i data-lucide="graduation-cap" class="w-4 h-4 text-rose-400"></i>
+            <span class="hidden sm:inline">Graduation</span>
+        </a>
+        <a href="#letter" class="p-2.5 rounded-full hover:bg-rose-500/20 text-rose-300 transition flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider">
+            <i data-lucide="mail" class="w-4 h-4 text-rose-400"></i>
+            <span class="hidden sm:inline">Letter</span>
+        </a>
+        <a href="#december-date" class="p-2.5 rounded-full bg-gradient-to-r from-rose-600 to-purple-600 hover:from-rose-500 hover:to-purple-500 text-white transition flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider shadow-lg shadow-rose-600/50">
+            <i data-lucide="calendar" class="w-4 h-4"></i>
+            <span>The Date</span>
+        </a>
+    </nav>
+
+    <main class="relative z-10 space-y-32 sm:space-y-48 pb-32">
+
+        <!-- 1. ENTRANCE HERO -->
+        <section id="welcome" class="min-h-screen flex flex-col items-center justify-center text-center px-4 relative pt-12">
+            <div class="space-y-8 max-w-4xl mx-auto animate-float">
+                <div class="inline-flex items-center gap-2 px-5 py-2 rounded-full glass-card-rose text-rose-200 text-xs sm:text-sm font-semibold tracking-widest uppercase border border-rose-500/40">
+                    <i data-lucide="orbit" class="w-4 h-4 text-amber-300 animate-spin" style="animation-duration: 10s;"></i>
+                    A 3D Interactive Infinite Experience Dedicated To You
+                </div>
+
+                <h1 class="font-serif text-4xl sm:text-7xl md:text-8xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-rose-100 via-rose-300 to-purple-200 leading-none text-glow">
+                    Welcome Home,<br>
+                    <span class="font-cursive text-6xl sm:text-8xl md:text-9xl text-rose-500 font-normal block mt-2">Mrs.Pk_chops ❤️</span>
+                </h1>
+
+                <p class="text-lg sm:text-2xl text-slate-300 font-light max-w-2xl mx-auto leading-relaxed">
+                    You conquered exams. You survived the journey.<br>
+                    <span class="text-rose-300 font-normal">Now step into our interactive universe. 🥹✨</span>
+                </p>
+
+                <div class="pt-4 flex flex-col items-center gap-3">
+                    <div class="px-8 py-3 rounded-2xl glass-card border border-rose-500/40 text-rose-300 font-mono text-base sm:text-lg tracking-widest shadow-2xl">
+                        21 • NOVEMBER • 2026
+                    </div>
+                </div>
+
+                <div class="pt-6">
+                    <a href="#vault" class="inline-flex items-center gap-3 px-10 py-5 rounded-full bg-gradient-to-r from-rose-600 via-rose-700 to-purple-800 hover:from-rose-500 hover:to-purple-700 text-white font-bold text-lg shadow-2xl shadow-rose-900/60 hover:shadow-rose-600/60 transition-all transform hover:-translate-y-1 hover:scale-105 active:scale-95">
+                        <i data-lucide="key" class="w-5 h-5 text-amber-300"></i>
+                        <span>Unlock Private Vault ❤️</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="mt-16 glass-card p-5 rounded-3xl border border-white/10 flex flex-col sm:flex-row items-center gap-5 max-w-md w-full">
+                <div class="p-3.5 bg-rose-600/30 rounded-2xl text-rose-300 border border-rose-500/30">
+                    <i data-lucide="clock" class="w-7 h-7"></i>
+                </div>
+                <div class="text-left">
+                    <span class="text-xs text-slate-400 uppercase tracking-widest font-bold">Building Infinity Together</span>
+                    <div id="loveCounter" class="text-2xl sm:text-3xl font-mono font-bold text-rose-300">000 Days, 00 Hrs</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- NEW SECTION: GALLERY OF US & NEXT PHOTO SESSION -->
+        <section id="my-photos" class="max-w-5xl mx-auto px-4 scroll-mt-24">
+            <div class="text-center space-y-4 mb-12">
+                <span class="text-rose-400 font-cursive text-3xl">Waiting For Our Next Chapter</span>
+                <h2 class="font-serif text-3xl sm:text-5xl font-bold text-white">📸 Our Gallery & Future Memories</h2>
+                <p class="text-slate-300 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed">
+                    Here are a few shots of me doing what I love. But when we meet, we're taking countless photos <span class="text-rose-300 font-bold">TOGETHER</span> to fill up our gallery! 🥰✨
+                </p>
+            </div>
+
+            <!-- Photos Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Image 1 -->
+                <div class="glass-card rounded-2xl p-3 border border-white/10 hover:border-rose-500/50 transition group overflow-hidden">
+                    <div class="relative overflow-hidden rounded-xl h-72">
+                        <img src="IMG-20260817-WA0047.jpg" alt="Ian playing drums" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-80"></div>
+                        <div class="absolute bottom-3 left-3 right-3 text-left">
+                            <span class="text-[10px] font-mono text-rose-400 uppercase tracking-wider">In My Zone 🥁</span>
+                            <p class="text-xs text-slate-200 font-light">"Playing music is special, but sharing it with you is everything."</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Image 2 -->
+                <div class="glass-card rounded-2xl p-3 border border-white/10 hover:border-rose-500/50 transition group overflow-hidden">
+                    <div class="relative overflow-hidden rounded-xl h-72">
+                        <img src="IMG-20260817-WA0048.jpg" alt="Ian smiling at drums" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-80"></div>
+                        <div class="absolute bottom-3 left-3 right-3 text-left">
+                            <span class="text-[10px] font-mono text-rose-400 uppercase tracking-wider">Smiles for You 😊</span>
+                            <p class="text-xs text-slate-200 font-light">"Can't wait to smile like this next to you."</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Image 3 -->
+                <div class="glass-card rounded-2xl p-3 border border-white/10 hover:border-rose-500/50 transition group overflow-hidden">
+                    <div class="relative overflow-hidden rounded-xl h-72">
+                        <img src="IMG-20260823-WA0048.jpg" alt="Ian peace sign" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-80"></div>
+                        <div class="absolute bottom-3 left-3 right-3 text-left">
+                            <span class="text-[10px] font-mono text-rose-400 uppercase tracking-wider">Peace & Love ✌️❤️</span>
+                            <p class="text-xs text-slate-200 font-light">"Saving this peace sign for our first joint selfie!"</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Image 4 -->
+                <div class="glass-card rounded-2xl p-3 border border-white/10 hover:border-rose-500/50 transition group overflow-hidden">
+                    <div class="relative overflow-hidden rounded-xl h-72">
+                        <img src="InShot_20260821_123441849.jpg" alt="Sketch portrait" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-80"></div>
+                        <div class="absolute bottom-3 left-3 right-3 text-left">
+                            <span class="text-[10px] font-mono text-rose-400 uppercase tracking-wider">Art & Love 🎨</span>
+                            <p class="text-xs text-slate-200 font-light">"@pk_chops — Drawn in art, held in heart."</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Image 5 -->
+                <div class="glass-card rounded-2xl p-3 border border-white/10 hover:border-rose-500/50 transition group overflow-hidden">
+                    <div class="relative overflow-hidden rounded-xl h-72">
+                        <img src="IMG-20260823-WA0046.jpg" alt="Drumsticks focus" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-80"></div>
+                        <div class="absolute bottom-3 left-3 right-3 text-left">
+                            <span class="text-[10px] font-mono text-rose-400 uppercase tracking-wider">Focused on You 🥁</span>
+                            <p class="text-xs text-slate-200 font-light">"Every beat plays for you, Mrs.Pk_chops."</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reserved Spot for "OUR" upcoming photo -->
+                <div class="glass-card rounded-2xl p-6 border-2 border-dashed border-rose-500/40 flex flex-col items-center justify-center text-center space-y-3 min-h-[288px] bg-rose-950/20">
+                    <div class="w-14 h-14 rounded-full bg-rose-600/30 border border-rose-500/50 flex items-center justify-center text-2xl text-rose-300 animate-pulse">
+                        📸
+                    </div>
+                    <span class="text-xs font-mono text-amber-300 uppercase tracking-wider">RESERVED FOR US</span>
+                    <h4 class="font-serif text-lg font-bold text-white">Our First Date Photo</h4>
+                    <p class="text-xs text-slate-300 max-w-xs leading-relaxed">
+                        When we meet, this frame will hold our picture together! Get ready for endless cute photos 🥰❤️
+                    </p>
+                </div>
+            </div>
+
+            <!-- Special Note Reminder -->
+            <div class="mt-8 glass-card p-6 rounded-2xl border border-rose-500/30 text-center max-w-2xl mx-auto bg-gradient-to-r from-rose-950/40 via-purple-950/40 to-slate-950/40">
+                <p class="font-cursive text-3xl text-amber-200 mb-2">A Gentle Reminder For Mrs.Pk_chops 🥹</p>
+                <p class="text-sm text-slate-200 leading-relaxed">
+                    "These pics are just a warmup. When we meet, we're taking a million pictures together—silly ones, sweet ones, and memories that'll last forever. Be ready for the camera! 📸❤️"
+                </p>
+            </div>
+        </section>
+
+        <!-- 2. SECURITY PORTFOLIO / PRIVATE VAULT -->
+        <section id="vault" class="max-w-3xl mx-auto px-4 scroll-mt-24">
+            <div class="glass-card p-8 sm:p-12 rounded-3xl border-2 border-amber-400/30 text-center space-y-8 relative overflow-hidden shadow-2xl">
+                <div class="absolute -top-24 -right-24 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+                <div class="space-y-3">
+                    <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/20 text-amber-300 text-xs font-bold uppercase tracking-widest border border-amber-500/30">
+                        <i data-lucide="shield-check" class="w-4 h-4"></i> Restricted Security Vault
+                    </div>
+                    <h2 class="font-serif text-3xl sm:text-5xl font-bold text-white">🔒 Security Portfolio</h2>
+                    <p class="text-slate-300 text-sm sm:text-base max-w-md mx-auto">This section contains private love secrets intended only for Mrs.Pk_chops. Enter the secret passcode to unlock.</p>
+                </div>
+
+                <div id="vaultLockScreen" class="space-y-5 max-w-sm mx-auto">
+                    <div class="relative">
+                        <input id="vaultPassword" type="password" placeholder="Enter password..." class="w-full px-6 py-4 rounded-2xl bg-black/60 border-2 border-rose-500/40 text-white text-center text-lg tracking-widest focus:outline-none focus:border-amber-400 transition placeholder:text-slate-500 font-mono shadow-inner">
+                        <button onclick="checkVaultPassword()" class="absolute right-2 top-2 bottom-2 px-5 rounded-xl bg-gradient-to-r from-rose-600 to-amber-500 text-slate-950 font-bold text-sm hover:scale-105 transition active:scale-95">
+                            Unlock
+                        </button>
+                    </div>
+                    <p id="vaultErrorMsg" class="text-rose-400 text-xs hidden font-mono animate-bounce">❌ Access Denied! Password hint: It's sweet and soft! 😘</p>
+                </div>
+
+                <div id="vaultSecretContent" class="hidden space-y-6 pt-6 border-t border-white/10 text-left animate-fadeIn">
+                    <div class="p-6 rounded-2xl bg-rose-950/40 border border-rose-500/30 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-mono text-amber-300 uppercase tracking-widest">Passcode Validated • Access Granted</span>
+                            <span class="text-xl">💋</span>
+                        </div>
+                        <h3 class="font-serif text-2xl font-bold text-rose-200">Secrets Only You Hold ❤️</h3>
+                        <ul class="space-y-3 text-sm text-slate-200">
+                            <li class="flex items-start gap-2">
+                                <i data-lucide="check-circle2" class="w-5 h-5 text-rose-400 shrink-0 mt-0.5"></i>
+                                <span><strong>Your Laugh:</strong> Is officially my favorite sound in the whole universe.</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <i data-lucide="check-circle2" class="w-5 h-5 text-rose-400 shrink-0 mt-0.5"></i>
+                                <span><strong>My Promise:</strong> To always stand by you, through exams, dreams, and life's wild rides.</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <i data-lucide="check-circle2" class="w-5 h-5 text-rose-400 shrink-0 mt-0.5"></i>
+                                <span><strong>Exclusive Privilege:</strong> Unlimited dates, endless cuddles, and eternal loyalty.</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. OUR STORY IN 3D PARALLAX CARDS -->
+        <section id="story" class="max-w-4xl mx-auto px-4 scroll-mt-24">
+            <div class="text-center space-y-3 mb-16">
+                <span class="text-rose-400 font-cursive text-3xl">Infinite Dimensions</span>
+                <h2 class="font-serif text-3xl sm:text-5xl font-bold text-white">📖 Our Story Universe</h2>
+                <p class="text-slate-400 text-sm sm:text-base max-w-md mx-auto">Scroll down to explore our interactive floating memory orbit.</p>
+            </div>
+
+            <div class="space-y-12">
+                <div class="glass-card p-8 rounded-3xl border border-white/10 hover:border-rose-500/50 transition group transform hover:-translate-y-2">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="w-12 h-12 rounded-2xl bg-rose-600/30 border border-rose-500/50 flex items-center justify-center text-2xl shadow-lg">❤️</div>
+                        <div>
+                            <span class="text-xs font-mono text-rose-400">DIMENSION 01</span>
+                            <h3 class="font-serif text-2xl font-semibold text-rose-200">How We Met</h3>
+                        </div>
+                    </div>
+                    <p class="text-slate-300 text-base leading-relaxed font-light">
+                        From a simple spark into an unbreakable bond. Every moment since our paths first crossed was a sign that we were meant to build something everlasting together.
+                    </p>
+                </div>
+
+                <div class="glass-card p-8 rounded-3xl border border-white/10 hover:border-rose-500/50 transition group transform hover:-translate-y-2">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="w-12 h-12 rounded-2xl bg-rose-600/30 border border-rose-500/50 flex items-center justify-center text-2xl shadow-lg">🥹</div>
+                        <div>
+                            <span class="text-xs font-mono text-rose-400">DIMENSION 02</span>
+                            <h3 class="font-serif text-2xl font-semibold text-rose-200">Our Favorite Memories</h3>
+                        </div>
+                    </div>
+                    <p class="text-slate-300 text-base leading-relaxed font-light">
+                        The late-night conversations, shared laughter, secret jokes, quiet support, and unforgettable dates that turned ordinary days into priceless treasures.
+                    </p>
+                </div>
+
+                <div class="glass-card p-8 rounded-3xl border border-white/10 hover:border-rose-500/50 transition group transform hover:-translate-y-2">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="w-12 h-12 rounded-2xl bg-rose-600/30 border border-rose-500/50 flex items-center justify-center text-2xl shadow-lg">🌱</div>
+                        <div>
+                            <span class="text-xs font-mono text-rose-400">DIMENSION 03</span>
+                            <h3 class="font-serif text-2xl font-semibold text-rose-200">How We've Grown Together</h3>
+                        </div>
+                    </div>
+                    <p class="text-slate-300 text-base leading-relaxed font-light">
+                        Through every exam season, challenge, triumph, and personal step forward, we held hands and grew stronger, wiser, and more in love.
+                    </p>
+                </div>
+
+                <div class="glass-card p-8 rounded-3xl border border-white/10 hover:border-rose-500/50 transition group transform hover:-translate-y-2">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="w-12 h-12 rounded-2xl bg-rose-600/30 border border-rose-500/50 flex items-center justify-center text-2xl shadow-lg">💍</div>
+                        <div>
+                            <span class="text-xs font-mono text-rose-400">DIMENSION 04</span>
+                            <h3 class="font-serif text-2xl font-semibold text-rose-200">Where We Are Now</h3>
+                        </div>
+                    </div>
+                    <p class="text-slate-300 text-base leading-relaxed font-light">
+                        Standing proud side by side. Celebrating victories, conquering obstacles, and looking into each other's eyes knowing we have found home.
+                    </p>
+                </div>
+
+                <div class="glass-card p-8 rounded-3xl border border-white/10 hover:border-rose-500/50 transition group transform hover:-translate-y-2">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="w-12 h-12 rounded-2xl bg-rose-600/30 border border-rose-500/50 flex items-center justify-center text-2xl shadow-lg">♾️</div>
+                        <div>
+                            <span class="text-xs font-mono text-rose-400">DIMENSION 05</span>
+                            <h3 class="font-serif text-2xl font-semibold text-rose-200">Where We Hope To Go Together</h3>
+                        </div>
+                    </div>
+                    <p class="text-slate-300 text-base leading-relaxed font-light">
+                        An infinite horizon of dates, travels, triumphs, warmth, laughter, and a life designed completely around our shared dreams.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. HER GRADUATION CELEBRATION -->
+        <section id="graduation" class="max-w-4xl mx-auto px-4 scroll-mt-24">
+            <div class="glass-card-rose rounded-3xl p-8 sm:p-14 relative overflow-hidden text-center border border-rose-500/40 shadow-2xl">
+                <div class="space-y-6 max-w-2xl mx-auto">
+                    <div class="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-gold-500/20 text-gold-300 border border-gold-500/40 text-xs font-bold uppercase tracking-widest">
+                        <i data-lucide="award" class="w-4 h-4"></i> Special Achievement Honor
+                    </div>
+
+                    <h2 class="font-serif text-4xl sm:text-6xl font-bold text-white leading-tight">
+                        Look at you, Graduate! 🎓❤️
+                    </h2>
+
+                    <div class="py-8 px-6 glass-card rounded-2xl border border-white/10 space-y-4">
+                        <h3 class="font-serif text-3xl sm:text-4xl text-rose-300 font-bold">Mrs.Pk_chops</h3>
+                        <p class="text-2xl sm:text-3xl font-cursive text-amber-200">You did it! 🎓</p>
+                        <p class="text-slate-200 text-base sm:text-xl leading-relaxed font-light italic">
+                            "I'm proud of the woman you've become,<br>
+                            proud of the journey you've survived,<br>
+                            and even more excited about the future<br>
+                            we're going to build together."
+                        </p>
+                        <div class="pt-2 text-rose-400 font-semibold text-lg">
+                            Congratulations, my love. ❤️
+                        </div>
+                    </div>
+
+                    <div>
+                        <button onclick="triggerGraduationSurprise()" class="inline-flex items-center gap-3 px-10 py-5 rounded-full bg-gradient-to-r from-amber-500 to-rose-600 hover:from-amber-400 hover:to-rose-500 text-slate-950 font-bold text-lg shadow-2xl transition transform hover:scale-105 active:scale-95">
+                            <i data-lucide="gift" class="w-6 h-6"></i>
+                            <span>Celebrate & Launch Confetti 🎁</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. THE SECRET LOVE LETTER -->
+        <section id="letter" class="max-w-3xl mx-auto px-4 scroll-mt-24 text-center">
+            <div class="space-y-3 mb-10">
+                <span class="text-rose-400 font-cursive text-3xl">Deep From My Heart</span>
+                <h2 class="font-serif text-3xl sm:text-5xl font-bold text-white">💌 The Secret Love Letter</h2>
+            </div>
+
+            <div class="glass-card p-8 sm:p-12 rounded-3xl border border-white/10 relative overflow-hidden">
+                <div id="envelopeCover" class="space-y-6 py-8">
+                    <div class="w-20 h-20 mx-auto rounded-full bg-rose-600/30 flex items-center justify-center border border-rose-500/50 text-rose-300 animate-pulse-glow">
+                        <i data-lucide="mail-open" class="w-10 h-10"></i>
+                    </div>
+                    <p class="font-serif text-lg sm:text-xl text-rose-200 italic">
+                        “For Mrs.Pk_chops — Open when you're ready ❤️”
+                    </p>
+                    <button onclick="openLoveLetter()" class="px-8 py-3.5 rounded-full bg-rose-600 hover:bg-rose-500 text-white font-semibold shadow-xl shadow-rose-600/40 transition hover:scale-105 active:scale-95">
+                        Unseal Letter 💌
+                    </button>
+                </div>
+
+                <div id="letterContent" class="hidden space-y-6 text-left animate-fadeIn py-4">
+                    <div class="flex items-center justify-between border-b border-white/10 pb-4">
+                        <span class="font-cursive text-3xl text-rose-400">My Dearest Mrs.Pk_chops,</span>
+                        <button onclick="playVoiceMessage()" class="inline-flex items-center gap-2 text-xs bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 px-3 py-1.5 rounded-full border border-rose-500/40 transition">
+                            <i data-lucide="headphones" class="w-4 h-4"></i>
+                            <span>Listen 🎧</span>
+                        </button>
+                    </div>
+
+                    <div class="space-y-4 text-slate-200 leading-relaxed font-light text-base">
+                        <p> Watching you prepare, dedicate yourself, and conquer your exams with such grace and resilience has been one of the most inspiring things I've ever witnessed. You carry a light inside you that brightens every room and every single day of my life.</p>
+                        <p> This website is a small token of a massive truth: I am completely, head-over-heels in love with you. Through every stress, every late night study session, and every moment of doubt, you proved how unstoppable you are.</p>
+                        <p> Now that school is behind us for this season, I want to dedicate my time to making you feel cherished, loved, and endlessly happy. You deserve the world, and I am honored to be the one walking into every tomorrow by your side.</p>
+                    </div>
+
+                    <div class="pt-6 border-t border-white/10 text-right">
+                        <p class="font-cursive text-3xl text-rose-300">Forever Yours,</p>
+                        <p class="font-serif text-lg font-bold text-white mt-1">Ian (Mr.Pk) ❤️</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 6. OUR MEMORY WALL -->
+        <section id="memories" class="max-w-5xl mx-auto px-4 scroll-mt-24">
+            <div class="flex flex-col sm:flex-row items-start sm:items-end justify-between mb-12 gap-4">
+                <div>
+                    <span class="text-rose-400 font-cursive text-3xl">Private Gallery</span>
+                    <h2 class="font-serif text-3xl sm:text-5xl font-bold text-white">📸 Our Memory Wall</h2>
+                    <p class="text-slate-400 text-sm mt-1">Our dynamic visual archive of smiles, dates, and memories.</p>
+                </div>
+                <button onclick="toggleUploadModal()" class="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-rose-600 hover:bg-rose-500 text-white text-sm font-semibold shadow-lg shadow-rose-600/30 transition hover:scale-105 active:scale-95">
+                    <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                    <span>Add a memory ❤️</span>
+                </button>
+            </div>
+
+            <div id="memoryGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="glass-card rounded-2xl p-5 border border-white/10 hover:border-rose-500/40 transition group">
+                    <div class="h-48 rounded-xl bg-gradient-to-br from-rose-950 to-slate-900 flex items-center justify-center text-4xl overflow-hidden relative">
+                        <span class="group-hover:scale-125 transition duration-500">🎓✨</span>
+                    </div>
+                    <div class="mt-4 space-y-2">
+                        <span class="text-xs text-rose-400 font-mono">Special Milestone</span>
+                        <h4 class="font-semibold text-rose-100">Exam Survival Victory</h4>
+                        <p class="text-xs text-slate-300">"Remember when you finished the final paper and we breathed that huge sigh of relief?"</p>
+                    </div>
+                </div>
+
+                <div class="glass-card rounded-2xl p-5 border border-white/10 hover:border-rose-500/40 transition group">
+                    <div class="h-48 rounded-xl bg-gradient-to-br from-amber-950 to-rose-950 flex items-center justify-center text-4xl overflow-hidden relative">
+                        <span class="group-hover:scale-125 transition duration-500">☕❤️</span>
+                    </div>
+                    <div class="mt-4 space-y-2">
+                        <span class="text-xs text-rose-400 font-mono">Late Night Talks</span>
+                        <h4 class="font-semibold text-rose-100">Endless Conversations</h4>
+                        <p class="text-xs text-slate-300">"The night we lost track of time talking about everything and nothing at all."</p>
+                    </div>
+                </div>
+
+                <div class="glass-card rounded-2xl p-5 border border-white/10 hover:border-rose-500/40 transition group">
+                    <div class="h-48 rounded-xl bg-gradient-to-br from-purple-950 to-rose-950 flex items-center justify-center text-4xl overflow-hidden relative">
+                        <span class="group-hover:scale-125 transition duration-500">🌅✨</span>
+                    </div>
+                    <div class="mt-4 space-y-2">
+                        <span class="text-xs text-rose-400 font-mono">Adventure Day</span>
+                        <h4 class="font-semibold text-rose-100">Sunset Strolls</h4>
+                        <p class="text-xs text-slate-300">"Watching the colors change in the sky, holding hands, knowing life is good."</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 7. THE DECEMBER DATE PROPOSAL -->
+        <section id="december-date" class="max-w-4xl mx-auto px-4 scroll-mt-24">
+            <div class="glass-card-rose rounded-3xl p-8 sm:p-14 border border-rose-500/50 space-y-10 relative overflow-hidden shadow-2xl">
+                
+                <div class="text-center space-y-4">
+                    <div class="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-rose-600/30 text-rose-200 text-xs font-bold uppercase tracking-wider border border-rose-500/40">
+                        <i data-lucide="heart-handshake" class="w-4 h-4"></i> The Grand Highlight
+                    </div>
+                    <h2 class="font-serif text-3xl sm:text-5xl font-bold text-white">You & Me — December 2026 ❤️</h2>
+                    <p class="font-cursive text-3xl sm:text-5xl text-amber-200 pt-2">
+                        So, Mrs.Pk_chops… Will you go on a date with me?
+                    </p>
+                </div>
+
+                <div id="optionChoices" class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                    <button onclick="selectOption(1, 'I choose love, food, laughter and you. ❤️')" class="glass-card p-6 rounded-2xl border border-white/10 hover:border-rose-500 text-left transition transform hover:-translate-y-1 active:scale-95 group">
+                        <span class="text-3xl mb-3 block">❤️</span>
+                        <h4 class="font-bold text-rose-200 group-hover:text-rose-400">OPTION 1</h4>
+                        <p class="text-sm text-slate-300 mt-2">“Absolutely! I choose love, food, laughter and you. ❤️”</p>
+                    </button>
+
+                    <button onclick="selectOption(2, 'Did you really think I\'d say no? 😂❤️')" class="glass-card p-6 rounded-2xl border border-white/10 hover:border-rose-500 text-left transition transform hover:-translate-y-1 active:scale-95 group">
+                        <span class="text-3xl mb-3 block">🥹</span>
+                        <h4 class="font-bold text-rose-200 group-hover:text-rose-400">OPTION 2</h4>
+                        <p class="text-sm text-slate-300 mt-2">“Obviously! Did you really think I'd say no? 😂❤️”</p>
+                    </button>
+
+                    <button onclick="selectOption(3, 'Ian, plan the adventure. I\'m coming. 😌❤️')" class="glass-card p-6 rounded-2xl border border-white/10 hover:border-rose-500 text-left transition transform hover:-translate-y-1 active:scale-95 group">
+                        <span class="text-3xl mb-3 block">🔥</span>
+                        <h4 class="font-bold text-rose-200 group-hover:text-rose-400">OPTION 3</h4>
+                        <p class="text-sm text-slate-300 mt-2">“Take Me Somewhere! Ian, plan the adventure. I'm coming. 😌❤️”</p>
+                    </button>
+                </div>
+
+                <div id="responseDisplay" class="hidden p-4 rounded-2xl bg-rose-600/30 border border-rose-500/50 text-center text-rose-200 font-semibold animate-fadeIn"></div>
+
+                <div id="dateSelectorSection" class="hidden space-y-8 pt-6 border-t border-white/10 animate-fadeIn">
+                    <div class="text-center">
+                        <h3 class="font-serif text-2xl text-rose-200">
+                            Okay Mrs.Pk_chops… when are you stealing me for the day? 😏❤️
+                        </h3>
+                    </div>
+
+                    <div class="glass-card p-6 rounded-2xl border border-white/10 max-w-md mx-auto">
+                        <div class="text-center font-bold text-rose-300 mb-4 font-mono text-lg">DECEMBER 2026</div>
+                        <div class="grid grid-cols-7 gap-2 text-center text-xs font-semibold text-slate-400 mb-2">
+                            <span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span>
+                        </div>
+                        <div id="calendarDays" class="grid grid-cols-7 gap-2 text-center text-sm font-mono"></div>
+                    </div>
+
+                    <div class="space-y-3">
+                        <label class="block text-center text-sm font-semibold text-rose-300">⏰ Choose Time</label>
+                        <div class="flex flex-wrap justify-center gap-3 max-w-md mx-auto">
+                            <button onclick="selectTime('10:00 AM')" class="time-btn px-4 py-2 rounded-xl glass-card border border-white/10 hover:border-rose-500 text-xs font-semibold">10:00 AM</button>
+                            <button onclick="selectTime('12:00 PM')" class="time-btn px-4 py-2 rounded-xl glass-card border border-white/10 hover:border-rose-500 text-xs font-semibold">12:00 PM</button>
+                            <button onclick="selectTime('2:00 PM')" class="time-btn px-4 py-2 rounded-xl glass-card border border-white/10 hover:border-rose-500 text-xs font-semibold">2:00 PM</button>
+                            <button onclick="selectTime('4:00 PM')" class="time-btn px-4 py-2 rounded-xl glass-card border border-white/10 hover:border-rose-500 text-xs font-semibold">4:00 PM</button>
+                            <button onclick="selectTime('6:00 PM')" class="time-btn px-4 py-2 rounded-xl glass-card border border-white/10 hover:border-rose-500 text-xs font-semibold">6:00 PM</button>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3">
+                        <label class="block text-center text-sm font-semibold text-rose-300">📍 Choose Our Adventure</label>
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-xl mx-auto">
+                            <button onclick="selectActivity('🍽️ Dinner date')" class="act-btn p-3 rounded-xl glass-card border border-white/10 hover:border-rose-500 text-xs text-center">🍽️ Dinner date</button>
+                            <button onclick="selectActivity('🎬 Movie')" class="act-btn p-3 rounded-xl glass-card border border-white/10 hover:border-rose-500 text-xs text-center">🎬 Movie</button>
+                            <button onclick="selectActivity('🌅 Sunset adventure')" class="act-btn p-3 rounded-xl glass-card border border-white/10 hover:border-rose-500 text-xs text-center">🌅 Sunset adventure</button>
+                            <button onclick="selectActivity('☕ Coffee & chat')" class="act-btn p-3 rounded-xl glass-card border border-white/10 hover:border-rose-500 text-xs text-center">☕ Coffee & chat</button>
+                        </div>
+                    </div>
+
+                    <div class="text-center pt-4">
+                        <button onclick="generateOfficialTicket()" class="px-10 py-4 rounded-full bg-gradient-to-r from-rose-600 to-amber-500 hover:from-rose-500 hover:to-amber-400 text-slate-950 font-extrabold text-lg shadow-xl transition transform hover:scale-105 active:scale-95">
+                            Lock In Our Date 🎟️
+                        </button>
+                    </div>
+                </div>
+
+                <div id="ticketContainer" class="hidden pt-8 animate-fadeIn">
+                    <div class="glass-card p-8 rounded-3xl border-2 border-amber-400/50 max-w-md mx-auto text-center space-y-6 bg-black/80 shadow-2xl">
+                        <div class="border-b border-amber-400/30 pb-4">
+                            <span class="text-xs font-mono text-amber-300 tracking-widest uppercase">OFFICIAL DATE PASS</span>
+                            <h3 class="font-serif text-2xl font-bold text-white mt-1">IAN ❤️ MRS.PK_CHOPS</h3>
+                        </div>
+
+                        <div class="space-y-3 font-mono text-sm text-slate-200">
+                            <div class="flex justify-between border-b border-white/5 py-1">
+                                <span class="text-slate-400">📅 Date:</span>
+                                <span id="ticketDate" class="text-rose-300 font-bold">December --, 2026</span>
+                            </div>
+                            <div class="flex justify-between border-b border-white/5 py-1">
+                                <span class="text-slate-400">⏰ Time:</span>
+                                <span id="ticketTime" class="text-rose-300 font-bold">--:--</span>
+                            </div>
+                            <div class="flex justify-between border-b border-white/5 py-1">
+                                <span class="text-slate-400">📍 Activity:</span>
+                                <span id="ticketActivity" class="text-rose-300 font-bold">--</span>
+                            </div>
+                            <div class="flex justify-between py-1">
+                                <span class="text-slate-400">Status:</span>
+                                <span class="text-emerald-400 font-bold flex items-center gap-1">
+                                    <i data-lucide="check-circle" class="w-4 h-4"></i> ACCEPTED ❤️
+                                </span>
+                            </div>
+                        </div>
+
+                        <button onclick="sendWhatsAppNotification()" class="w-full py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm shadow-lg flex items-center justify-center gap-2 transition hover:scale-105 active:scale-95">
+                            <i data-lucide="send" class="w-4 h-4"></i>
+                            <span>Notify Ian via WhatsApp 📱</span>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 8. FOREVER CLOSING SECTION -->
+        <section class="max-w-4xl mx-auto px-4 text-center py-16">
+            <div class="glass-card p-10 sm:p-20 rounded-3xl border border-white/10 space-y-8 bg-black/70 relative overflow-hidden">
+                <div class="space-y-6 max-w-xl mx-auto">
+                    <p class="font-cursive text-4xl text-rose-400">Before you leave…</p>
+                    <div class="space-y-3 text-slate-300 text-lg font-light leading-relaxed">
+                        <p>I don't know what every tomorrow will look like.</p>
+                        <p>But I know I want to keep creating memories with you.</p>
+                        <p class="text-rose-200">More conversations. More laughter. More adventures.</p>
+                        <p class="text-rose-200">More pictures. More dates. More growing. More us. ❤️</p>
+                    </div>
+
+                    <div class="pt-6 space-y-2">
+                        <h3 class="font-serif text-3xl font-bold text-white">Mrs.Pk_chops × Ian</h3>
+                        <p class="text-xs font-mono text-rose-400 uppercase tracking-widest">Our story isn't finished. We're still writing it. ♾️</p>
+                    </div>
+
+                    <div class="pt-12 text-center">
+                        <p class="font-cursive text-4xl text-rose-300 tracking-wide hover:scale-105 transition transform duration-300">
+                            made by love that takes away your breath Mr.Pk🥰
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MEMORY UPLOAD MODAL -->
+    <div id="uploadModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden flex items-center justify-center p-4">
+        <div class="glass-card p-6 rounded-3xl border border-rose-500/30 max-w-md w-full space-y-4">
+            <div class="flex justify-between items-center border-b border-white/10 pb-3">
+                <h3 class="font-semibold text-rose-200">Add a Memory ❤️</h3>
+                <button onclick="toggleUploadModal()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div class="space-y-3 text-sm">
+                <div>
+                    <label class="block text-slate-400 text-xs mb-1">Memory Title</label>
+                    <input id="memTitle" type="text" placeholder="e.g. Surprise Coffee Date" class="w-full px-4 py-2 rounded-xl bg-slate-900 border border-white/10 text-white focus:outline-none focus:border-rose-500">
+                </div>
+                <div>
+                    <label class="block text-slate-400 text-xs mb-1">Little Message / Note</label>
+                    <textarea id="memNote" rows="3" placeholder="Write your memory note..." class="w-full px-4 py-2 rounded-xl bg-slate-900 border border-white/10 text-white focus:outline-none focus:border-rose-500"></textarea>
+                </div>
+            </div>
+            <div class="pt-2 flex justify-end gap-2">
+                <button onclick="toggleUploadModal()" class="px-4 py-2 rounded-xl glass-card text-xs text-slate-300">Cancel</button>
+                <button onclick="saveNewMemory()" class="px-5 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-semibold">Post Memory</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC ENGINE -->
+    <script>
+        lucide.createIcons();
+
+        const bgAudio = document.getElementById('bgAudio');
+        let isAudioPlaying = false;
+
+        function attemptAutoPlay() {
+            bgAudio.play().then(() => {
+                isAudioPlaying = true;
+                updateAudioUI(true);
+            }).catch(() => {
+                updateAudioUI(false);
+            });
+        }
+
+        window.addEventListener('click', () => {
+            if (!isAudioPlaying) {
+                bgAudio.play().then(() => {
+                    isAudioPlaying = true;
+                    updateAudioUI(true);
+                }).catch(() => {});
+            }
+        }, { once: true });
+
+        function toggleAudio() {
+            if (isAudioPlaying) {
+                bgAudio.pause();
+                isAudioPlaying = false;
+                updateAudioUI(false);
+            } else {
+                bgAudio.play();
+                isAudioPlaying = true;
+                updateAudioUI(true);
+            }
+        }
+
+        function updateAudioUI(playing) {
+            const txt = document.getElementById('musicStatusText');
+            const vis = document.getElementById('audioVisualizer');
+            if (playing) {
+                txt.innerText = 'Soundtrack: Playing mylove.mp3 🎶';
+                vis.style.opacity = '1';
+            } else {
+                txt.innerText = 'Soundtrack: Paused 🎵';
+                vis.style.opacity = '0.3';
+            }
+        }
+        attemptAutoPlay();
+
+        let scene, camera, renderer, particleSystem, torusMesh;
+
+        function init3DUniverse() {
+            const canvas3d = document.getElementById('webgl-bg');
+            scene = new THREE.Scene();
+
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.z = 30;
+
+            renderer = new THREE.WebGLRenderer({ canvas: canvas3d, alpha: true, antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+            const particleCount = 2000;
+            const geometry = new THREE.BufferGeometry();
+            const positions = new Float32Array(particleCount * 3);
+            const colors = new Float32Array(particleCount * 3);
+
+            const colorRose = new THREE.Color(0xf43f5e);
+            const colorPurple = new THREE.Color(0xa855f7);
+            const colorGold = new THREE.Color(0xeab308);
+
+            for (let i = 0; i < particleCount * 3; i += 3) {
+                positions[i] = (Math.random() - 0.5) * 120;
+                positions[i + 1] = (Math.random() - 0.5) * 120;
+                positions[i + 2] = (Math.random() - 0.5) * 120;
+
+                const mixedColor = colorRose.clone().lerp(Math.random() > 0.5 ? colorPurple : colorGold, Math.random());
+                colors[i] = mixedColor.r;
+                colors[i + 1] = mixedColor.g;
+                colors[i + 2] = mixedColor.b;
+            }
+
+            geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+            const material = new THREE.PointsMaterial({
+                size: 0.8,
+                vertexColors: true,
+                transparent: true,
+                opacity: 0.8
+            });
+
+            particleSystem = new THREE.Points(geometry, material);
+            scene.add(particleSystem);
+
+            const torusGeo = new THREE.TorusKnotGeometry(8, 2.5, 100, 16);
+            const torusMat = new THREE.MeshBasicMaterial({
+                color: 0xe11d48,
+                wireframe: true,
+                transparent: true,
+                opacity: 0.25
+            });
+            torusMesh = new THREE.Mesh(torusGeo, torusMat);
+            scene.add(torusMesh);
+
+            animate3D();
+        }
+
+        function animate3D() {
+            requestAnimationFrame(animate3D);
+
+            particleSystem.rotation.y += 0.0008;
+            particleSystem.rotation.x += 0.0004;
+
+            torusMesh.rotation.x += 0.005;
+            torusMesh.rotation.y += 0.008;
+
+            renderer.render(scene, camera);
+        }
+
+        window.addEventListener('scroll', () => {
+            const scrollY = window.scrollY;
+            if (camera) {
+                camera.position.z = 30 + scrollY * 0.015;
+                camera.position.y = -scrollY * 0.01;
+                torusMesh.rotation.z = scrollY * 0.002;
+            }
+        });
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        init3DUniverse();
+
+        const emojiCanvas = document.getElementById('emoji-stream');
+        const ctxEmoji = emojiCanvas.getContext('2d');
+        let width, height, emojiArray = [];
+
+        const loveEmojis = ['🥰','😊','💕','💕','😘','🎶','🎵','❤️','📽️','🎬','😍','😂','🤗','😋','😁','🥰','😗','🤩','🥳','🥹','🎆','🎇','🎄'];
+
+        function resizeEmojiCanvas() {
+            width = emojiCanvas.width = window.innerWidth;
+            height = emojiCanvas.height = window.innerHeight;
+        }
+
+        class FloatingEmoji {
+            constructor() {
+                this.reset();
+            }
+            reset() {
+                this.x = Math.random() * width;
+                this.y = height + Math.random() * 100;
+                this.speed = Math.random() * 1.5 + 0.8;
+                this.emoji = loveEmojis[Math.floor(Math.random() * loveEmojis.length)];
+                this.fontSize = Math.floor(Math.random() * 20) + 20;
+                this.opacity = Math.random() * 0.7 + 0.3;
+                this.swing = Math.random() * 2;
+                this.swingSpeed = Math.random() * 0.03;
+            }
+            update() {
+                this.y -= this.speed;
+                this.swing += this.swingSpeed;
+                this.x += Math.sin(this.swing) * 0.8;
+                if (this.y < -50) this.reset();
+            }
+            draw() {
+                ctxEmoji.globalAlpha = this.opacity;
+                ctxEmoji.font = `${this.fontSize}px sans-serif`;
+                ctxEmoji.fillText(this.emoji, this.x, this.y);
+            }
+        }
+
+        function initEmojiStream() {
+            resizeEmojiCanvas();
+            emojiArray = [];
+            for (let i = 0; i < 40; i++) {
+                emojiArray.push(new FloatingEmoji());
+            }
+        }
+
+        function animateEmojiStream() {
+            ctxEmoji.clearRect(0, 0, width, height);
+            emojiArray.forEach(e => {
+                e.update();
+                e.draw();
+            });
+            requestAnimationFrame(animateEmojiStream);
+        }
+
+        window.addEventListener('resize', resizeEmojiCanvas);
+        initEmojiStream();
+        animateEmojiStream();
+
+        function checkVaultPassword() {
+            const pwd = document.getElementById('vaultPassword').value.trim().toLowerCase();
+            const err = document.getElementById('vaultErrorMsg');
+            const lock = document.getElementById('vaultLockScreen');
+            const secret = document.getElementById('vaultSecretContent');
+
+            if (pwd === 'kiss') {
+                lock.classList.add('hidden');
+                secret.classList.remove('hidden');
+                err.classList.add('hidden');
+                confetti({ particleCount: 150, spread: 90, origin: { y: 0.6 } });
+            } else {
+                err.classList.remove('hidden');
+            }
+        }
+
+        function triggerGraduationSurprise() {
+            confetti({ particleCount: 200, spread: 100, origin: { y: 0.6 } });
+        }
+
+        function openLoveLetter() {
+            document.getElementById('envelopeCover').classList.add('hidden');
+            document.getElementById('letterContent').classList.remove('hidden');
+            confetti({ particleCount: 80, spread: 70, origin: { y: 0.7 } });
+        }
+
+        function playVoiceMessage() {
+            alert("🎧 'You did so amazingly well, my love. I am so proud of you!' — Ian ❤️");
+        }
+
+        function toggleUploadModal() {
+            document.getElementById('uploadModal').classList.toggle('hidden');
+        }
+
+        function saveNewMemory() {
+            const title = document.getElementById('memTitle').value;
+            const note = document.getElementById('memNote').value;
+            if (!title || !note) return;
+
+            const grid = document.getElementById('memoryGrid');
+            const card = document.createElement('div');
+            card.className = "glass-card rounded-2xl p-5 border border-white/10 hover:border-rose-500/40 transition group animate-fadeIn";
+            card.innerHTML = `
+                <div class="h-48 rounded-xl bg-gradient-to-br from-rose-900 to-purple-950 flex items-center justify-center text-4xl overflow-hidden relative">
+                    <span class="group-hover:scale-125 transition duration-500">❤️✨</span>
+                </div>
+                <div class="mt-4 space-y-2">
+                    <span class="text-xs text-rose-400 font-mono">New Memory</span>
+                    <h4 class="font-semibold text-rose-100">${escapeHtml(title)}</h4>
+                    <p class="text-xs text-slate-300">"${escapeHtml(note)}"</p>
+                </div>
+            `;
+            grid.prepend(card);
+            document.getElementById('memTitle').value = '';
+            document.getElementById('memNote').value = '';
+            toggleUploadModal();
+        }
+
+        function escapeHtml(text) {
+            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
+
+        let selectedDay = null;
+        let selectedTimeVal = null;
+        let selectedActVal = null;
+
+        function selectOption(optNum, text) {
+            const disp = document.getElementById('responseDisplay');
+            disp.innerText = `You selected Option ${optNum}: "${text}"`;
+            disp.classList.remove('hidden');
+            document.getElementById('dateSelectorSection').classList.remove('hidden');
+            renderDecemberCalendar();
+        }
+
+        function renderDecemberCalendar() {
+            const cal = document.getElementById('calendarDays');
+            cal.innerHTML = '';
+            for (let i = 0; i < 2; i++) cal.appendChild(document.createElement('div'));
+            for (let day = 1; day <= 31; day++) {
+                const btn = document.createElement('button');
+                btn.className = "cal-day p-2 rounded-xl hover:bg-rose-600/40 border border-transparent transition";
+                btn.innerText = day;
+                btn.onclick = () => {
+                    document.querySelectorAll('.cal-day').forEach(b => b.classList.remove('bg-rose-600', 'text-white', 'font-bold'));
+                    btn.classList.add('bg-rose-600', 'text-white', 'font-bold');
+                    selectedDay = day;
+                };
+                cal.appendChild(btn);
+            }
+        }
+
+        function selectTime(time) {
+            selectedTimeVal = time;
+            document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('border-rose-500', 'bg-rose-600/30'));
+            event.target.classList.add('border-rose-500', 'bg-rose-600/30');
+        }
+
+        function selectActivity(act) {
+            selectedActVal = act;
+            document.querySelectorAll('.act-btn').forEach(b => b.classList.remove('border-rose-500', 'bg-rose-600/30'));
+            event.target.classList.add('border-rose-500', 'bg-rose-600/30');
+        }
+
+        function generateOfficialTicket() {
+            if (!selectedDay || !selectedTimeVal || !selectedActVal) {
+                alert("Please select a Date, Time, and Activity for our date! ❤️");
+                return;
+            }
+            document.getElementById('ticketDate').innerText = `December ${selectedDay}, 2026`;
+            document.getElementById('ticketTime').innerText = selectedTimeVal;
+            document.getElementById('ticketActivity').innerText = selectedActVal;
+            document.getElementById('ticketContainer').classList.remove('hidden');
+            confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
+        }
+
+        function sendWhatsAppNotification() {
+            const dateStr = `December ${selectedDay}, 2026`;
+            const msg = `❤️ NEW DATE CONFIRMATION\n\nMrs.Pk_chops accepted your December date! 😭❤️\n\n📅 Date: ${dateStr}\n⏰ Time: ${selectedTimeVal}\n🎯 Activity: ${selectedActVal}\n\nShe said YES! ❤️`;
+            window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+        }
+
+        function triggerSecretHeart() {
+            alert("💖 Secret Love Boost Unlocked! You make Ian's world complete.");
+            confetti({ particleCount: 50, spread: 60 });
+        }
+
+        const startDate = new Date('2024-01-01T00:00:00');
+        function updateCounter() {
+            const now = new Date();
+            const diff = now - startDate;
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+            document.getElementById('loveCounter').innerText = `${days} Days, ${hours} Hrs`;
+        }
+        setInterval(updateCounter, 1000);
+        updateCounter();
+    </script>
+</body>
+</html>
